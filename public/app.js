@@ -19,7 +19,6 @@ let roomDialog = null;
 let roomId = null;
 
 function init() {
-    document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
     document.querySelector('#hangupBtn').addEventListener('click', hangUp);
     document.querySelector('#createBtn').addEventListener('click', createRoom);
     document.querySelector('#joinBtn').addEventListener('click', joinRoom);
@@ -27,6 +26,7 @@ function init() {
 }
 
 async function createRoom() {
+    console.log("In create room function");
     document.querySelector('#createBtn').disabled = true;
     document.querySelector('#joinBtn').disabled = true;
     const db = firebase.firestore();
@@ -37,9 +37,10 @@ async function createRoom() {
 
     registerPeerConnectionListeners();
 
-    localStream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, localStream);
-    });
+    // openUserMedia();
+    // localStream.getTracks().forEach(track => {
+    //     peerConnection.addTrack(track, localStream);
+    // });
 
     // Code for collecting ICE candidates below
     const callerCandidatesCollection = roomRef.collection('callerCandidates');
@@ -72,13 +73,13 @@ async function createRoom() {
         '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
     // Code for creating a room above
 
-    peerConnection.addEventListener('track', event => {
-        console.log('Got remote track:', event.streams[0]);
-        event.streams[0].getTracks().forEach(track => {
-            console.log('Add a track to the remoteStream:', track);
-            remoteStream.addTrack(track);
-        });
-    });
+    // peerConnection.addEventListener('track', event => {
+    //     console.log('Got remote track:', event.streams[0]);
+    //     event.streams[0].getTracks().forEach(track => {
+    //         console.log('Add a track to the remoteStream:', track);
+    //         remoteStream.addTrack(track);
+    //     });
+    // });
 
     // Listening for remote session description below
     roomRef.onSnapshot(async snapshot => {
@@ -185,12 +186,10 @@ async function joinRoomById(roomId) {
 }
 
 async function openUserMedia(e) {
-    const stream = await navigator.mediaDevices.getUserMedia(
+    const stream = await navigator.mediaDevices.getDisplayMedia(
         { video: true, audio: true });
     document.querySelector('#localVideo').srcObject = stream;
     localStream = stream;
-    remoteStream = new MediaStream();
-    document.querySelector('#remoteVideo').srcObject = remoteStream;
 
     console.log('Stream:', document.querySelector('#localVideo').srcObject);
     document.querySelector('#cameraBtn').disabled = true;
