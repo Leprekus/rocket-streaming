@@ -18,6 +18,48 @@ let remoteStream = null;
 let roomDialog = null;
 let roomId = null;
 
+
+function messagesInit(role) {
+    //--- create a data channel
+    const dataChannel = peerConnection.createDataChannel('messages');
+
+    peerConnection.addEventListener('datachannel', event => {
+        const dataChannel = event.channel;
+        console.log({ dataChannel })
+    });
+
+
+    //--- send a message
+    const commentBox = document.querySelector('#commentBox');
+    const sendButton = document.querySelector('#sendButton');
+
+    //--- Enable textarea and button when opened
+    dataChannel.addEventListener('open', event => {
+
+        commentBox.disabled = false;
+        commentBox.focus();
+
+    });
+
+    // Send a simple text message when we type
+    commentBox.addEventListener('input', event => {
+        console.log('running')
+        const message = commentBox.textContent;
+        dataChannel.send(message);
+        document.querySelector('#messageStatus').innerText = "Message has entered the void!";
+    })
+
+    console.log("incomming meessages")
+    // --- receive a message
+    const incomingMessages = document.querySelector('#incomingMessages');
+    // Append new messages to the box of incoming messages
+    console.log('listening')
+    dataChannel.addEventListener('message', event => {
+        console.log('receiving message')
+        const message = event.data;
+        incomingMessages.textContent += message + '\n';
+    });
+}
 function init() {
     document.querySelector('#hangupBtn').addEventListener('click', hangUp);
     document.querySelector('#createBtn').addEventListener('click', createRoom);
@@ -34,6 +76,8 @@ async function createRoom() {
 
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
+
+    messagesInit();
 
     registerPeerConnectionListeners();
 
@@ -129,10 +173,13 @@ async function joinRoomById(roomId) {
     if (roomSnapshot.exists) {
         console.log('Create PeerConnection with configuration: ', configuration);
         peerConnection = new RTCPeerConnection(configuration);
+
+        messagesInit()
+
         registerPeerConnectionListeners();
-        localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStream);
-        });
+        // localStream.getTracks().forEach(track => {
+        //     peerConnection.addTrack(track, localStream);
+        // });
 
         // Code for collecting ICE candidates below
         const calleeCandidatesCollection = roomRef.collection('calleeCandidates');
