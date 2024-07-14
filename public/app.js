@@ -25,6 +25,7 @@ function messagesInit (role) {
 
     peerConnection.addEventListener('datachannel', event => {
         const dataChannel = event.channel;
+        console.log({dataChannel})
     });
 
 
@@ -32,17 +33,28 @@ function messagesInit (role) {
     const commentBox = document.querySelector('#commentBox');
     const sendButton = document.querySelector('#sendButton');
 
-    // Send a simple text message when we click the button
-    commentBox.addEventListener('change', event => {
+    //--- Enable textarea and button when opened
+    dataChannel.addEventListener('open', event => {
+        
+        commentBox.disabled = false;
+        commentBox.focus();
+        
+    });
+
+    // Send a simple text message when we type
+    commentBox.addEventListener('input', event => {
         console.log('running')
         const message = messageBox.textContent;
         dataChannel.send(message);
     })
 
+     console.log("incomming meessages")
     // --- receive a message
     const incomingMessages = document.querySelector('#incomingMessages');
         // Append new messages to the box of incoming messages
-    dataChannel.addEventListener('message', event => {
+        console.log('listening')
+        dataChannel.addEventListener('message', event => {
+        console.log('receiving message')
         const message = event.data;
         incomingMessages.textContent += message + '\n';
     });

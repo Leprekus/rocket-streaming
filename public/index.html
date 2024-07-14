@@ -20,7 +20,10 @@
 </head>
 
 <body>
-  <h1>Welcome to Rocket Streaming!</h1>
+  <div style='display: flex; align-items: center;'>
+    <h1>Welcome to Rocket Streaming!</h1>
+    <img src='/loglo.png' style='width: 40px; height: 40px;'/>
+  </div>
   <div id="buttons">
     <button class="mdc-button mdc-button--raised" id="createBtn">
       <i class="material-icons mdc-button__icon" aria-hidden="true">group_add</i>
@@ -42,8 +45,9 @@
     <video id="localVideo" muted autoplay playsinline></video>
   </div>
   <div id="commentSection">
-    <h2>Comments</h2>
+    <h2>Live Comments</h2>
     <div class="mdc-text-field">
+      <div id='incomingMessages'/>
       <input type="text" id="commentBox" class="mdc-text-field__input">
       <label class="mdc-floating-label" for="my-text-field">Comment</label>
       <div class="mdc-line-ripple"></div>
