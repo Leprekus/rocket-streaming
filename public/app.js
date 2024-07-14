@@ -19,13 +19,13 @@ let roomDialog = null;
 let roomId = null;
 
 
-function messagesInit (role) {
+function messagesInit(role) {
     //--- create a data channel
     const dataChannel = peerConnection.createDataChannel('messages');
 
     peerConnection.addEventListener('datachannel', event => {
         const dataChannel = event.channel;
-        console.log({dataChannel})
+        console.log({ dataChannel })
     });
 
 
@@ -35,25 +35,26 @@ function messagesInit (role) {
 
     //--- Enable textarea and button when opened
     dataChannel.addEventListener('open', event => {
-        
+
         commentBox.disabled = false;
         commentBox.focus();
-        
+
     });
 
     // Send a simple text message when we type
     commentBox.addEventListener('input', event => {
         console.log('running')
-        const message = messageBox.textContent;
+        const message = commentBox.textContent;
         dataChannel.send(message);
+        document.querySelector('#messageStatus').innerText = "Message has entered the void!";
     })
 
-     console.log("incomming meessages")
+    console.log("incomming meessages")
     // --- receive a message
     const incomingMessages = document.querySelector('#incomingMessages');
-        // Append new messages to the box of incoming messages
-        console.log('listening')
-        dataChannel.addEventListener('message', event => {
+    // Append new messages to the box of incoming messages
+    console.log('listening')
+    dataChannel.addEventListener('message', event => {
         console.log('receiving message')
         const message = event.data;
         incomingMessages.textContent += message + '\n';
