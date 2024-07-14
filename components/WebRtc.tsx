@@ -29,6 +29,7 @@ const WebRTCComponent = () => {
 
     const openUserMedia = async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+		if(!localVideoRef?.currentx || !remoteVideoRef?.current) return
         localVideoRef.current.srcObject = stream;
         setLocalStream(stream);
         setRemoteStream(new MediaStream());
