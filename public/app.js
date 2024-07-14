@@ -18,6 +18,35 @@ let remoteStream = null;
 let roomDialog = null;
 let roomId = null;
 
+
+function messagesInit (role) {
+    //--- create a data channel
+    const dataChannel = peerConnection.createDataChannel('messages');
+
+    peerConnection.addEventListener('datachannel', event => {
+        const dataChannel = event.channel;
+    });
+
+
+    //--- send a message
+    const commentBox = document.querySelector('#commentBox');
+    const sendButton = document.querySelector('#sendButton');
+
+    // Send a simple text message when we click the button
+    commentBox.addEventListener('change', event => {
+        console.log('running')
+        const message = messageBox.textContent;
+        dataChannel.send(message);
+    })
+
+    // --- receive a message
+    const incomingMessages = document.querySelector('#incomingMessages');
+        // Append new messages to the box of incoming messages
+    dataChannel.addEventListener('message', event => {
+        const message = event.data;
+        incomingMessages.textContent += message + '\n';
+    });
+}
 function init() {
     document.querySelector('#hangupBtn').addEventListener('click', hangUp);
     document.querySelector('#createBtn').addEventListener('click', createRoom);
@@ -34,6 +63,8 @@ async function createRoom() {
 
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
+
+    messagesInit();
 
     registerPeerConnectionListeners();
 
@@ -129,10 +160,13 @@ async function joinRoomById(roomId) {
     if (roomSnapshot.exists) {
         console.log('Create PeerConnection with configuration: ', configuration);
         peerConnection = new RTCPeerConnection(configuration);
+
+        messagesInit()
+
         registerPeerConnectionListeners();
-        localStream.getTracks().forEach(track => {
-            peerConnection.addTrack(track, localStream);
-        });
+        // localStream.getTracks().forEach(track => {
+        //     peerConnection.addTrack(track, localStream);
+        // });
 
         // Code for collecting ICE candidates below
         const calleeCandidatesCollection = roomRef.collection('calleeCandidates');
@@ -257,32 +291,5 @@ function registerPeerConnectionListeners() {
             `ICE connection state change: ${peerConnection.iceConnectionState}`);
     });
 }
-
-//--- create a data channel
-const dataChannel = peerConnection.createDataChannel();
-
-peerConnection.addEventListener('datachannel', event => {
-    const dataChannel = event.channel;
-});
-
-
-//--- send a message
-const messageBox = document.querySelector('#messageBox');
-const sendButton = document.querySelector('#sendButton');
-
-// Send a simple text message when we click the button
-sendButton.addEventListener('click', event => {
-    const message = messageBox.textContent;
-    dataChannel.send(message);
-})
-
-// --- receive a message
-const incomingMessages = document.querySelector('#incomingMessages');
-    // Append new messages to the box of incoming messages
-dataChannel.addEventListener('message', event => {
-    const message = event.data;
-    incomingMessages.textContent += message + '\n';
-});
-
 
 init();
