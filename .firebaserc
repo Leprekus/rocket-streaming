@@ -1,6 +1,7 @@
 {
   "projects": {
-    "default": "rocket-streaming"
+    "default": "rocket-streaming",
+    "staging": "rocket-streaming"
   },
   "targets": {},
   "etags": {},

@@ -1,5 +1,6 @@
 'use client';
 import Player from '@/components/Player';
+import WebRTCComponent from '@/components/WebRtc';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
 
   return (
     <main className='flex min-h-screen flex-col items-center justify-between p-24'>
+      <WebRTCComponent/>
       <input
         className='text-black'
         onChange={(e) => {
