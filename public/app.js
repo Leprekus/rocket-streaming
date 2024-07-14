@@ -258,4 +258,31 @@ function registerPeerConnectionListeners() {
     });
 }
 
+//--- create a data channel
+const dataChannel = peerConnection.createDataChannel();
+
+peerConnection.addEventListener('datachannel', event => {
+    const dataChannel = event.channel;
+});
+
+
+//--- send a message
+const messageBox = document.querySelector('#messageBox');
+const sendButton = document.querySelector('#sendButton');
+
+// Send a simple text message when we click the button
+sendButton.addEventListener('click', event => {
+    const message = messageBox.textContent;
+    dataChannel.send(message);
+})
+
+// --- receive a message
+const incomingMessages = document.querySelector('#incomingMessages');
+    // Append new messages to the box of incoming messages
+dataChannel.addEventListener('message', event => {
+    const message = event.data;
+    incomingMessages.textContent += message + '\n';
+});
+
+
 init();
