@@ -1,9 +1,0 @@
-{
-  "projects": {
-    "default": "rocket-streaming",
-    "staging": "rocket-streaming"
-  },
-  "targets": {},
-  "etags": {},
-  "dataconnectEmulatorConfig": {}
-}
