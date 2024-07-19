@@ -1,3 +1,4 @@
+import { DefaultEventsMap } from '@socket.io/component-emitter';
 import { MutableRefObject } from 'react';
 import { io } from 'socket.io-client';
 
@@ -66,75 +67,151 @@ import { io } from 'socket.io-client';
 
 // export const rtcInstance = WebRtc();
 
-
 const BACKEND = 'http://localhost:3001';
-export const createSession = async (videoRef: MutableRefObject<HTMLVideoElement | null>) => {
-  //TODO: wrap in try catch
-
-  //initialize socket
-  const roomId = 'example-room-id';
-  const socket = io(BACKEND, {
+const roomId = 'example-room-id';
+const initSocket = () =>
+  io(BACKEND, {
+    // reconnectionDelay: 10000,
+    // reconnectionDelayMax: 100000,
+    transports: ['websocket'],
     query: {
       roomId,
     },
+    forceNew: false,
+  });
+export const createSession = async (
+  videoRef: MutableRefObject<HTMLVideoElement | null>
+) => {
+  //TODO: wrap in try catch
+
+  //initialize socket
+  const socket = initSocket();
+  socket.on('connect', () => {
+    //initialize stream
+    navigator.mediaDevices
+      .getDisplayMedia({
+        video: {
+          displaySurface: 'monitor',
+        },
+      })
+      .then((stream) => {
+        //output stream to video element
+        const video = videoRef.current;
+        if (!video) throw Error('no video element found');
+
+        video.srcObject = stream;
+        video.play();
+
+        //emit stream content to socket
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm; codecs="vp8, opus"',
+        });
+        mediaRecorder.ondataavailable = (event) => {
+          if (event?.data.size > 0) {
+            console.log('emittingdata');
+            socket.send(event.data);
+          }
+        };
+        mediaRecorder.start(2000); //send data in 100ms chunks
+      })
+      .catch((error) => console.error('Error accessing media device ', error));
   });
 
-  //initialize stream
-  const stream = await navigator.mediaDevices.getDisplayMedia({
-    video: { displaySurface: 'monitor' },
+  socket.on('disconnect', (error) => {
+    console.log('Socket disconnected:', socket.id, error);
   });
 
-  //output stream to video element
-  const video = videoRef.current;
-  if (!video) throw Error('no video element found');
+  socket.on('ping', () => {
+    console.log('Ping sent to server');
+  });
 
-  video.srcObject = stream;
-  video.play();
-
-  //emit stream content to socket
-  const mediaRecorder = new MediaRecorder(stream);
-  mediaRecorder.ondataavailable = (event) => {
-    if (event.data.size > 0) socket.emit('stream', event.data);
-  };
-  mediaRecorder.start(100); //send data in 100ms chunks
+  socket.on('pong', (latency) => {
+    console.log('Pong received from server. Latency:', latency);
+  });
 };
 
-export const joinSession = (videoRef: MutableRefObject<HTMLVideoElement | null>) => {
-  //initialize socket
-  const roomId = 'example-room-id';
-  const socket = io(BACKEND, {
-    query: {
-      roomId: roomId,
-    },
-  });
+// export const joinSession = (
+//   videoRef: MutableRefObject<HTMLVideoElement | null>
+// ) => {
+//   const video = videoRef.current;
+//   //generate stream url
+//   if (!video) throw Error('no video element found');
+//   const mediaSource = new MediaSource();
+//   video.src = URL.createObjectURL(mediaSource);
+//   // console.log({ URL: URL.createObjectURL(mediaSource) });
+
+//   mediaSource.addEventListener('sourceopen', () => {
+//     const sourceBuffer = mediaSource.addSourceBuffer(
+//       'video/webm; codecs="vp8, opus"'
+//     );
+
+//     //initialize socket
+//     const socket = initSocket();
+
+//     socket.on('stream', (data) => {
+//       console.log('receiving ', data)
+//       const arrayU8 = new Uint8Array(data.data);
+//       // Check if the MediaSource is still open
+//       if (mediaSource.readyState === 'open') {
+//         // Append the received data to the SourceBuffer
+//         sourceBuffer.appendBuffer(arrayU8);
+//       } else {
+//         console.log(
+//           'Media source is not in open state: ',
+//           mediaSource.readyState
+//         );
+//       }
+//     });
+
+//     sourceBuffer.addEventListener('updateend', () => {
+//       if (video.paused) video.play();
+//     });
+
+//     sourceBuffer.addEventListener('error', (error) => {
+//       console.log(SourceBuffer);
+//       console.error('SourceBuffer error ', error);
+//     });
+//     socket.on('connect', () => {
+//       console.log('joined server');
+//     });
+//   });
+// };
+
+export const joinSession = (
+  videoRef: MutableRefObject<HTMLVideoElement | null>
+) => {
   const video = videoRef.current;
   //generate stream url
   if (!video) throw Error('no video element found');
+
   const mediaSource = new MediaSource();
   video.src = URL.createObjectURL(mediaSource);
-  console.log({ URL: URL.createObjectURL(mediaSource) });
 
   mediaSource.addEventListener('sourceopen', () => {
-    const buffer = mediaSource.addSourceBuffer(
-      'video/webm; codecs="vp8, vorbis"'
-    );
-    console.log('pre stream')
+    const mimeType = 'video/webm; codecs="vp8, opus"';
+    const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
 
+    if (!MediaSource.isTypeSupported(mimeType))
+      throw Error('Media Source not supported');
+
+    //initialize socket
+    const socket = initSocket();
     socket.on('stream', (data) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        
-        buffer.appendBuffer(new Uint8Array(reader.result as ArrayBuffer));
-      };
-
-      
-      reader.readAsArrayBuffer(data);
+      const uint8Array = new Uint8Array(data);
+      if (mediaSource.readyState === 'open')
+        sourceBuffer.appendBuffer(uint8Array);
+      else
+        console.log('Media source not in open state ', mediaSource.readyState);
     });
-    socket.on('connect', () => {
-      console.log('joined server');
+    sourceBuffer.addEventListener('updateend', () => {
+      if (video.paused)
+        video.play().catch((error) => console.error('failed to play ', error));
+      //else video.src = url;
+      //mediaSource.endOfStream()
     });
-    
-    console.log('post stream')
 
+    sourceBuffer.addEventListener('error', (event) =>
+      console.error('SourceBuffer error ', event)
+    );
   });
 };

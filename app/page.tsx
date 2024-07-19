@@ -1,5 +1,5 @@
 'use client';
-import JoinCreateTabs from '@/components/JoinCreateTabs';
+import JoinCreateTabs, { MemoedJoinCreateTabs } from '@/components/JoinCreateTabs';
 import YouTubePlayer from '@/components/YouTubePlayer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <main className='flex min-h-screen flex-col items-center justify-between p-24'>
       <div className='flex flex-col gap-4'>
-        <JoinCreateTabs
+        <MemoedJoinCreateTabs
           videoId={videoId}
           setVideoId={setVideoId}
           setDisplay={setDisplay}

@@ -34,10 +34,12 @@ io.on('connection', (socket) => {
 		throw Error('No room Id provided')
 
 	socket.join(roomId)
-
-	socket.on('stream', (data) => {
-		const blob = new Blob(data, { type: 'video/webm' });
-		io.to(roomId).emit('stream', blob)
+	socket.on('message', (data) => {
+	
+		//const blob = new Blob(payload.data, { type: 'video/webm' });
+		console.log('emitting ', data)
+		//console.log('Emitting to room ', roomId)
+		io.to(roomId).emit('stream', data)
 	})
 
 	socket.on('disconnect', () => {

@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useRef } from 'react';
+import React, { memo, MutableRefObject, useEffect, useRef } from 'react';
 import { Tabs, TabsList, TabsContent, TabsTrigger } from './ui/tabs';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -15,7 +15,6 @@ export default function JoinCreateTabs({
   setDisplay,
 }: JoinCreateTabsProps) {
   const videoRef = useRef<null | HTMLVideoElement>(null);
-
   
   return (
     <>
@@ -54,7 +53,9 @@ export default function JoinCreateTabs({
           </div>
         </TabsContent>
       </Tabs>
-      <video ref={videoRef}>Something Went Wrong</video>
+      <video ref={videoRef} className='size-96 bg-red-500' controls>Something Went Wrong</video>
     </>
   );
 }
+
+export const MemoedJoinCreateTabs = memo(JoinCreateTabs)
