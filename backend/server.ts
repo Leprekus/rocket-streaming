@@ -15,7 +15,7 @@ require('dotenv').config()
  */
 
 const PORT = process.env.PORT
-const origin = 'http://localhost:3000'
+const origin = process.env.ORIGIN
 const app = express()
 const server = createServer(app)
 const io = new Server(server, {
