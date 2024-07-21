@@ -2,6 +2,7 @@ import { Server } from 'socket.io'
 import express, { Request, Response } from 'express'
 import { createServer } from 'http'
 import cors from 'cors'
+require('dotenv').config()
 /**
  * signalling server:
  * hosting Peer = P_h
@@ -13,7 +14,7 @@ import cors from 'cors'
  * iv) server joins P_j to room created by P_h
  */
 
-const PORT = 3001
+const PORT = process.env.PORT
 const origin = 'http://localhost:3000'
 const app = express()
 const server = createServer(app)
@@ -47,7 +48,9 @@ io.on('connection', (socket) => {
 	})
 
 })
-
+app.get('/', (req, res) => {
+	res.send('Hello World!')
+  })
 server.listen(PORT, () => {
 	console.log(`Server listening on PORT ${PORT}`)
 })
