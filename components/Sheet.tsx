@@ -14,6 +14,7 @@ import { initSocket } from '@/utils';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
+import { Badge } from './ui/badge'
 /**
  * textarea can be mutated in two ways:
  * i) by direct editing from the user
@@ -70,7 +71,7 @@ export default function Sheet() {
     // };
 
     const createSession = () => {
-        //initialize socket
+    
         setInSession(true);
 
         /**
@@ -100,22 +101,26 @@ export default function Sheet() {
                 onChange={(e) => handleTextChange({ id: socket?.id, rawText: e.currentTarget.value })}
                 value={rawText}
             />
-            <div
-                className="flex flex-col min-h-screen w-fit mx-auto relative"
-                onClick={() => textAreaRef.current?.select()}
-            >
-                <div className="flex gap-4 p-4">
-                    <Button variant="secondary" onClick={createSession}>
+            <div className="flex items-center gap-4 p-4 border-b shadow w-full">
+                    <Button variant="default" onClick={createSession}>
                         Create Session
                     </Button>
                     <Button variant="secondary" onClick={createSession}>
                         Join Session
                     </Button>
+                    <div>
+                        <Badge className='flex gap-4'>Session : <span className={`size-2 rounded-full ${inSession ? 'bg-green-500' : 'bg-red-500'}`}/></Badge>
+                    </div>
                 </div>
+            <div
+                className="flex flex-col min-h-screen w-fit mx-auto relative pt-4"
+                onClick={() => textAreaRef.current?.select()}
+            >
+                
                 <MarkdownPreview
                     source={rawText}
                     style={{ padding: 16 }}
-                    className="w-[800px] min-h-screen overflow-y-scroll bg-red-500"
+                    className="w-[800px] min-h-screen overflow-y-scroll rounded-md"
                 />
             </div>
         </div>
