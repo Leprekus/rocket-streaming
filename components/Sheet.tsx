@@ -44,7 +44,6 @@ export default function Sheet() {
 
     const textAreaRef = useRef<null | HTMLTextAreaElement>(null);
     const formatText = (rawText: string) => {
-        
         setRawText(rawText);
     };
 
@@ -82,10 +81,6 @@ export default function Sheet() {
             const s = initSocket();
             s.on('stream', ({ id, rawText }: SocketPayloadInterface) => {
 
-                console.log({
-                    payloadId: id,
-                    clientId: s?.id
-                })
                 if(id === s.id) return
                 handleTextChange({ id, rawText });
             });
@@ -93,10 +88,18 @@ export default function Sheet() {
         });
     };
 
+    const handleSelect = () => {
+        const textArea = textAreaRef?.current
+        if(!textArea) return
+        textArea.select()
+        textArea.selectionStart = rawText.length
+        textArea.selectionEnd = rawText.length
+    }
+
     return (
         <div>
             <textarea
-                className="absolute top-[-999999999px]"
+                className="absolute top-[-999999px]"
                 ref={textAreaRef}
                 onChange={(e) => handleTextChange({ id: socket?.id, rawText: e.currentTarget.value })}
                 value={rawText}
@@ -114,7 +117,7 @@ export default function Sheet() {
                 </div>
             <div
                 className="flex flex-col min-h-screen w-fit mx-auto relative pt-4"
-                onClick={() => textAreaRef.current?.select()}
+                onClick={handleSelect}
             >
                 
                 <MarkdownPreview
