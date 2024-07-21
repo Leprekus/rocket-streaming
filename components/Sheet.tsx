@@ -14,62 +14,79 @@ import { initSocket } from '@/utils';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
-interface JoinCreateTabsProps {
-    // videoId: string;
-    // setVideoId: (text: string) => void;
-    // setDisplay: (value: boolean) => void;
-}
-export default function Sheet({}: // videoId,
-// setVideoId,
-// setDisplay,
-JoinCreateTabsProps) {
+/**
+ * textarea can be mutated in two ways:
+ * i) by direct editing from the user
+ * ii) from an incoming socket stream
+ * in both cases the information is handled through
+ * the handleTextChange function
+ *
+ * case 1: active session and user mutates the textarea, in which
+ * case it gets filtered by socket stream because the payload id
+ * matches the current socket id
+ *
+ * case 2: active session and incoming payload is from peer in which case
+ * state is updated because id does not match current
+ * socket id
+ *
+ * case 3: no active session so the only
+ * caller mutating textarea is the onChange evt
+ *
+ */
+export default function Sheet() {
     const [rawText, setRawText] = useState('');
-    const [sessionStatus, setSessionStatus] = useState<
-        'none' | 'host' | 'join'
-    >('none');
+    const [inSession, setInSession] = useState(false);
     const [socket, setSocket] = useState<null | Socket<
         DefaultEventsMap,
         DefaultEventsMap
     >>(null);
 
     const textAreaRef = useRef<null | HTMLTextAreaElement>(null);
-    const formatText = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        let text = e.currentTarget.value;
-        setRawText(text);
+    const formatText = (rawText: string) => {
+        
+        setRawText(rawText);
     };
 
-    const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        formatText(e);
-        switch (sessionStatus) {
-            case 'join':
-                if (!socket) throw Error('no socket found');
-                break;
-            case 'host':
-                if (!socket) throw Error('no socket found');
-                socket.send(e.currentTarget.value); //send the raw text as useState is 1 cycle late
-                break;
-        }
+    /**
+     * purpose: sets state of raw text
+     * sends raw text through socket
+     */
+    interface SocketPayloadInterface {
+        id: undefined | string
+        rawText: string
+    }
+    const handleTextChange = ({ id, rawText }: SocketPayloadInterface) => {
+        formatText(rawText);
+        if (inSession && !socket) throw Error('no socket found');
+        if (inSession && socket)
+            socket.send({ id, rawText }); //send the raw text as useState is 1 cycle late
+        
     };
+    // const createSession = () => {
+    //     //TODO: wrap in try catch
+    //     setInSession(true);
+    //     //initialize socket
+    //     setSocket(initSocket());
+    // };
+
     const createSession = () => {
-        //TODO: wrap in try catch
-        setSessionStatus('host');
         //initialize socket
-        setSocket(initSocket());
-    };
+        setInSession(true);
 
-    const joinSession = () => {
-        //initialize socket
-        setSessionStatus('join');
-
+        /**
+         * purpose: initializes socket
+         * binds handleTextChange to incoming socket streams
+         */
         setSocket(() => {
             const s = initSocket();
-            s.on('stream', (data) => {
-                const evtTarget = {
-                    currentTarget: {
-                        value: data,
-                    },
-                };
-                formatText(evtTarget as ChangeEvent<HTMLTextAreaElement>);
+            s.on('stream', ({ id, rawText }: SocketPayloadInterface) => {
+
+                console.log({
+                    payloadId: id,
+                    clientId: s?.id
+                })
+                if(id === s.id) return
+                handleTextChange({ id, rawText });
             });
             return s;
         });
@@ -80,7 +97,7 @@ JoinCreateTabsProps) {
             <textarea
                 className="absolute top-[-999999999px]"
                 ref={textAreaRef}
-                onChange={handleTextChange}
+                onChange={(e) => handleTextChange({ id: socket?.id, rawText: e.currentTarget.value })}
                 value={rawText}
             />
             <div
@@ -91,7 +108,7 @@ JoinCreateTabsProps) {
                     <Button variant="secondary" onClick={createSession}>
                         Create Session
                     </Button>
-                    <Button variant="secondary" onClick={joinSession}>
+                    <Button variant="secondary" onClick={createSession}>
                         Join Session
                     </Button>
                 </div>
