@@ -10,7 +10,7 @@ const test = {
     done: true,
 };
 
-const BACKEND = 'http://localhost:3001';
+const BACKEND = process.env.BACKEND_URL!;
 const roomId = 'example-room-id';
 export const initSocket = () => {
     const s = io(BACKEND, {
