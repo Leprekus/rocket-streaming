@@ -10,7 +10,7 @@ const test = {
     done: true,
 };
 
-const BACKEND = process.env.BACKEND_URL!;
+const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL!;
 const roomId = 'example-room-id';
 export const initSocket = () => {
     const s = io(BACKEND, {
@@ -31,27 +31,9 @@ export const initSocket = () => {
     s.on('disconnect', (error) => {
         console.log('Socket disconnected:', s.id, error);
     });
+
+    s.on('error', (event) => {
+        console.error('socket connection failed ', event)
+    })
     return s;
-};
-
-export const createSession = async () => {
-    //TODO: wrap in try catch
-
-    //initialize socket
-    const socket = initSocket();
-    socket.on('connect', () => {
-        //initialize stream
-        console.log('emittingdata');
-        socket.send(test);
-    });
-
-    socket.on('disconnect', (error) => {
-        console.log('Socket disconnected:', socket.id, error);
-    });
-};
-
-export const joinSession = () => {
-    //initialize socket
-    const socket = initSocket();
-    socket.on('stream', (data) => {});
 };
