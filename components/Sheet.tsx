@@ -36,7 +36,12 @@ import { toast } from 'sonner';
  *
  */
 export default function Sheet() {
-    const [rawText, setRawText] = useState('Click here to begin typing in real-time!');
+    const [rawText, setRawText] = useState(`## ⚙️ How It Works
+
+1. **Start a session:** Open client one and click "Create session".
+2. **Join the session:** Open client two and click “Join Session.”
+3. **Type!**: Click anywhere on the screen and begin typing
+4. **Collaborate:** Both can edit simultaneously with real-time updates.`);
     const [inSession, setInSession] = useState(false);
     const [socket, setSocket] = useState<null | Socket<
         DefaultEventsMap,
