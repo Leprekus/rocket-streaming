@@ -10,32 +10,15 @@ A simple Next.js project demonstrating real-time collaboration using WebSockets.
 
 ### 1. Create Environment Files
 
-**Root folder: `.env.local`**
 
 ```env
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
 ```
 
-**Backend folder: `backend/.env`**
-
-```env
-PORT=3001  
-ORIGIN='http://localhost:3000'
-```
-
 ### 2. Install Dependencies
 
-**Frontend**
-
 ```bash
-npm i
-npm run dev
-```
-
-**Backend**
-
-```bash
-cd backend
+cd rocket-streaming
 npm i
 npm run dev
 ```
@@ -50,9 +33,10 @@ A simple text editor with real-time collaboration between two users via WebSocke
 
 ## ⚙️ How It Works
 
-1. **Start a session:** Peer 1 creates a session.
-2. **Join the session:** Peer 2 clicks “Join Session.”
-3. **Collaborate:** Both can edit simultaneously with real-time updates.
+1. **Start a session:** Open client one and click "Create session".
+2. **Join the session:** Open client two and click “Join Session.”
+3. **Type!**: Click anywhere on the screen and begin typing
+4. **Collaborate:** Both can edit simultaneously with real-time updates.
 
 ---
 
@@ -62,5 +46,3 @@ A simple text editor with real-time collaboration between two users via WebSocke
 * Markdown support (e.g., `# Hello World` → `<h1>Hello World</h1>`)
 
 ---
-
-Let me know if you'd like this in markdown format too.
