@@ -32,8 +32,15 @@ npm i
 npm run dev
 ```
 
-# About
-This project is intended to be a simple text editor showcasing real time collaboration between two peers using websockets.
-To start first have peer 1 create a session, and once it's been created peer to may click join session.
-Once you begin typing in the text area you'll see all changes reflected in real time.
-Furthermore, the textarea has markdown support so typing something such as # Hello World will render an \<h1>
+## About
+
+This project is a simple text editor that demonstrates real-time collaboration between two users using WebSockets.
+
+### How It Works
+1. **Start a session**: Peer 1 creates a session.
+2. **Join the session**: Peer 2 clicks "Join Session" after the session is created.
+3. **Collaborate**: Both users can type in the text area and see changes reflected in real time.
+
+### Features
+- Real-time synchronization
+- Markdown support (e.g., `# Hello World` renders as `<h1>`)
