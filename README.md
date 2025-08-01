@@ -10,19 +10,37 @@ A simple Next.js project demonstrating real-time collaboration using WebSockets.
 
 ### 1. Create Environment Files
 
-
+Create an env for the frontend:
+rocket-streaming/.env.local
 ```env
-NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8080
 ```
 
-### 2. Install Dependencies
+Create and env for the backend:
+rocket-streaming/backend/.env
+```env
+PORT=8080
+ORIGIN=http://localhost:3001
+```
 
+Note: NEXT_PUBLIC_URL must match the backend's URL
+and ORIGIN must match the frontend's URL.
+
+### 2. Install Dependencies and run servers
+
+Frontend:
 ```bash
-cd rocket-streaming
+cd rocket-streaming/
 npm i
 npm run dev
 ```
 
+Backend:
+```bash
+cd rocket-streaming/backend
+npm i
+npm run dev
+```
 ---
 
 ## 📝 About
