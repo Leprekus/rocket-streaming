@@ -15,6 +15,7 @@ import MarkdownPreview from '@uiw/react-markdown-preview';
 import { Socket } from 'socket.io-client';
 import { DefaultEventsMap } from '@socket.io/component-emitter';
 import { Badge } from './ui/badge'
+import { toast } from 'sonner';
 /**
  * textarea can be mutated in two ways:
  * i) by direct editing from the user
@@ -35,7 +36,7 @@ import { Badge } from './ui/badge'
  *
  */
 export default function Sheet() {
-    const [rawText, setRawText] = useState('');
+    const [rawText, setRawText] = useState('Click here to begin typing in real-time!');
     const [inSession, setInSession] = useState(false);
     const [socket, setSocket] = useState<null | Socket<
         DefaultEventsMap,
@@ -81,9 +82,13 @@ export default function Sheet() {
             const s = initSocket();
             s.on('stream', ({ id, rawText }: SocketPayloadInterface) => {
 
-                if(id === s.id) return
+                if(id === s.id) {
+			toast('Session already exists');
+			return
+		}
                 handleTextChange({ id, rawText });
             });
+	    toast('Session created successfully');
             return s;
         });
     };
@@ -123,7 +128,7 @@ export default function Sheet() {
                 <MarkdownPreview
                     source={rawText}
                     style={{ padding: 16 }}
-                    className="w-[800px] min-h-screen overflow-y-scroll rounded-md"
+                    className="w-[800px] min-h-screen overflow-y-scroll rounded-md border shadow"
                 />
             </div>
         </div>
